@@ -17,7 +17,7 @@ My contribution is the reasoning layer stack:
 - Layer 4: validates inferred constraints over step history, tracks effect
   lifecycle, and builds a procedural reasoning graph with traceable evidence.
 
-![Implemented pipeline](docs/reasoning_layers/Implemented_layout.png)
+![Implemented pipeline](docs/reasoning_layers/Implemented_layout_white_bkgrnd.png)
 
 *Implemented pipeline. Each stage creates explicit artifacts, so the reasoning
 process can be inspected before the next stage consumes the output.*
