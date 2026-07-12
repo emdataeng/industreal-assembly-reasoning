@@ -151,3 +151,12 @@ This public repository intentionally excludes private pilot-study data and
 human-judgement experiment packets. It is intended to show the thesis reasoning
 pipeline and a minimal reproducible public demo, not the full private research
 archive.
+
+
+## License
+
+This repository is released under the Apache License 2.0.
+
+The included IndustReal-derived artifacts remain subject to the original
+IndustReal license and citation requirements. See the Citation / Data Source
+section above.
