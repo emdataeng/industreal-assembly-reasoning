@@ -1,0 +1,16 @@
+# Credentials and local environment
+.env
+.venv/
+venv/
+
+# Python cache and test artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local generated outputs
+results/reasoning_layers/
+results/procedural_reasoning_graph/
+
+# Local scratch data
+.tmp/

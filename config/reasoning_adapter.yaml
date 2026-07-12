@@ -1,0 +1,17 @@
+{
+  "schema_version": "industreal_reasoning_adapter_config.v2",
+  "default_run_id": "raw_cad_dataset__all_test_clips",
+  "paths": {
+    "csv_dir": "results/neo4j/${default_run_id}",
+    "output_root": "results/reasoning_layers",
+    "predicate_config": "config/thesis_rules.yaml",
+    "domain_config": "config/domain_config.yaml",
+    "observation_contract": "config/observation_contract.yaml"
+  },
+  "csv_files": {
+    "events": "nodes_events.csv",
+    "event_component": "edges_event_component.csv",
+    "event_next": "edges_event_next.csv",
+    "components": "nodes_components.csv"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": "industreal_observation_contract.v1",
+  "contract_version": "1.0.0",
+  "installation_target": {
+    "missing_observation_policy": "domain_assumed",
+    "supported_missing_observation_policies": [
+      "domain_assumed",
+      "require_observed"
+    ],
+    "event_fields": {
+      "target": "observed_installation_target",
+      "confidence": "observed_installation_target_confidence",
+      "source_type": "observed_installation_target_source"
+    },
+    "fallback_to_event_confidence": true,
+    "default_source_type": "upstream_observation"
+  }
+}

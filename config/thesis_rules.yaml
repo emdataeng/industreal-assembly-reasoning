@@ -1,0 +1,309 @@
+{
+  "schema_version": "industreal_thesis_rules.v1",
+  "rule_set_version": "1.3.0",
+  "adapter": {
+    "predicates": {
+      "event": {
+        "has_action": {
+          "name": "hasAction",
+          "description": "Associates a step with its normalized action label.",
+          "args": ["step_id", "action_name"],
+          "enabled": true
+        },
+        "has_time_window": {
+          "name": "hasTimeWindow",
+          "description": "Associates a step with its start and end timestamps.",
+          "args": ["step_id", "start_s", "end_s"],
+          "enabled": true
+        }
+      },
+      "object_interaction": {
+        "uses_object": {
+          "name": "usesObject",
+          "description": "Associates a step with a non-tool component it acts on.",
+          "args": ["step_id", "component_id"],
+          "enabled": true
+        },
+        "uses_tool": {
+          "name": "usesTool",
+          "description": "Associates a step with a component whose edge role is tool.",
+          "args": ["step_id", "component_id"],
+          "enabled": true
+        }
+      },
+      "entity_metadata": {
+        "is_a": {
+          "name": "isA",
+          "description": "Associates a component with either its source normalized type or a domain generic type.",
+          "args": ["component_id", "component_type"],
+          "enabled": true
+        },
+        "has_label": {
+          "name": "hasLabel",
+          "description": "Associates a component with its source label.",
+          "args": ["component_id", "component_label"],
+          "enabled": true
+        },
+        "has_parent_component": {
+          "name": "hasParentComponent",
+          "description": "Associates a component with its parent component from the domain config.",
+          "args": ["component_id", "parent_component_id"],
+          "enabled": true
+        },
+        "has_install_target": {
+          "name": "hasInstallTarget",
+          "description": "Associates a component with its expected installation target from the domain config.",
+          "args": ["component_id", "target_id"],
+          "enabled": true
+        },
+        "observed_install_target": {
+          "name": "observedInstallTarget",
+          "description": "Associates an installation step with a target independently observed by an upstream source.",
+          "args": ["step_id", "component_id", "target_id"],
+          "enabled": true
+        },
+        "allows_domain_assumed_install_target": {
+          "name": "allowsDomainAssumedInstallTarget",
+          "description": "Allows the expected domain target to supply a missing observed installation target under the configured policy.",
+          "args": ["step_id", "component_id"],
+          "enabled": true
+        },
+        "requires_installed_before": {
+          "name": "requiresInstalledBefore",
+          "description": "States that a component installation requires its target to already be installed on another support.",
+          "args": ["component_id", "target_id", "support_id"],
+          "enabled": true
+        },
+        "has_required_condition": {
+          "name": "hasRequiredCondition",
+          "description": "Associates a component with a domain-required assembly condition.",
+          "args": ["component_id", "condition_name", "arg_1", "arg_2"],
+          "enabled": true
+        },
+        "has_safety_requirement": {
+          "name": "hasSafetyRequirement",
+          "description": "Associates a component with a domain-required safety condition.",
+          "args": ["component_id", "condition_name", "arg_1", "arg_2"],
+          "enabled": true
+        },
+        "has_observed_effect": {
+          "name": "hasObservedEffect",
+          "description": "Associates a step with an effect explicitly stated in its annotation.",
+          "args": ["step_id", "condition_name", "arg_1", "arg_2"],
+          "enabled": true
+        },
+        "has_required_tool": {
+          "name": "hasRequiredTool",
+          "description": "Associates a component with a tool required by the domain config.",
+          "args": ["component_id", "tool_name"],
+          "enabled": true
+        }
+      }
+    }
+  },
+  "predicate_vocabulary": {
+    "hasAction": {"arity": 2, "description": "Associates a step with its normalized action label."},
+    "hasTimeWindow": {"arity": 3, "description": "Associates a step with its start and end timestamps."},
+    "usesObject": {"arity": 2, "description": "Associates a step with a non-tool component it acts on."},
+    "usesTool": {"arity": 2, "description": "Associates a step with a component whose edge role is tool."},
+    "isA": {"arity": 2, "description": "Associates an individual with a generic class."},
+    "hasLabel": {"arity": 2, "description": "Associates an individual with its display label."},
+    "hasParentComponent": {"arity": 2, "description": "Associates a component with its parent component."},
+    "hasInstallTarget": {"arity": 2, "description": "Associates a component with its expected installation target."},
+    "observedInstallTarget": {"arity": 3, "description": "Associates a step and component with an independently observed installation target."},
+    "allowsDomainAssumedInstallTarget": {"arity": 2, "description": "Allows domain-assumed target fallback when no observed target is available."},
+    "requiresInstalledBefore": {"arity": 3, "description": "States that a component requires its target to be installed first."},
+    "hasRequiredCondition": {"arity": 4, "description": "Associates a component with a required assembly condition."},
+    "hasSafetyRequirement": {"arity": 4, "description": "Associates a component with a safety condition."},
+    "hasObservedEffect": {"arity": 4, "description": "Associates a step with an explicitly annotated effect."},
+    "hasRequiredTool": {"arity": 2, "description": "Associates a component with a required tool."},
+    "requires": {"arity": 4, "description": "Layer 3 inferred precondition or assembly condition."},
+    "produces": {"arity": 4, "description": "Layer 3 expected effect."},
+    "requiresSafety": {"arity": 4, "description": "Layer 3 inferred safety requirement."},
+    "requiresTool": {"arity": 2, "description": "Layer 3 inferred tool requirement."},
+    "incompatibleAction": {"arity": 3, "description": "Layer 3 inferred incompatibility."},
+    "incompatibleInstallationTarget": {"arity": 4, "description": "Observed installation target conflicts with the expected domain target."}
+  },
+  "predicate_aliases": {
+    "stepHasAction": "hasAction",
+    "actsOn": "usesObject",
+    "typeOf": "isA"
+  },
+  "defaults": {
+    "threshold": 0.70,
+    "aggregation": "min"
+  },
+  "validation": {
+    "tau_acc": 0.70,
+    "tau_unc": 0.35
+  },
+  "rule_types": {
+    "inferred_precondition": "Derives conditions that should hold before a step is valid.",
+    "expected_effect": "Derives effects that a step is expected to produce for later validation.",
+    "safety_constraint": "Derives safety-related conditions that may be omitted from the step description.",
+    "required_tool": "Infers tools required to perform a step.",
+    "implicit_assembly_condition": "Derives technical assembly conditions required for an action to make sense.",
+    "compatibility": "Identifies inadmissible action-object combinations as hard validity conditions."
+  },
+  "rules": [
+    {
+      "id": "precondition_install_requires_target_installed",
+      "type": "inferred_precondition",
+      "threshold": 0.70,
+      "antecedents": [
+        {"name": "hasAction", "args": ["?s", "install"]},
+        {"name": "usesObject", "args": ["?s", "?component"]},
+        {"name": "isA", "args": ["?component", "Component"]},
+        {"name": "requiresInstalledBefore", "args": ["?component", "?target", "?support"]}
+      ],
+      "constraints": [
+        {"name": "requires", "kind": "inferred_precondition", "args": ["?s", "installed", "?target", "?support"]}
+      ]
+    },
+    {
+      "id": "effect_install_component_on_target",
+      "type": "expected_effect",
+      "threshold": 0.70,
+      "antecedents": [
+        {"name": "hasAction", "args": ["?s", "install"]},
+        {"name": "usesObject", "args": ["?s", "?component"]},
+        {"name": "isA", "args": ["?component", "Component"]},
+        {"name": "allowsDomainAssumedInstallTarget", "args": ["?s", "?component"]},
+        {"name": "hasInstallTarget", "args": ["?component", "?target"]}
+      ],
+      "constraints": [
+        {"name": "produces", "kind": "expected_effect", "args": ["?s", "installed", "?component", "?target"]}
+      ]
+    },
+    {
+      "id": "effect_install_component_on_observed_target",
+      "type": "expected_effect",
+      "threshold": 0.70,
+      "antecedents": [
+        {"name": "hasAction", "args": ["?s", "install"]},
+        {"name": "usesObject", "args": ["?s", "?component"]},
+        {"name": "isA", "args": ["?component", "Component"]},
+        {"name": "observedInstallTarget", "args": ["?s", "?component", "?target"]},
+        {"name": "hasInstallTarget", "args": ["?component", "?target"]}
+      ],
+      "constraints": [
+        {"name": "produces", "kind": "expected_effect", "args": ["?s", "installed", "?component", "?target"]}
+      ]
+    },
+    {
+      "id": "compat_observed_installation_target_mismatch",
+      "type": "compatibility",
+      "threshold": 0.70,
+      "antecedents": [
+        {"name": "hasAction", "args": ["?s", "install"]},
+        {"name": "usesObject", "args": ["?s", "?component"]},
+        {"name": "isA", "args": ["?component", "Component"]},
+        {"name": "observedInstallTarget", "args": ["?s", "?component", "?observed_target"]},
+        {"name": "hasInstallTarget", "args": ["?component", "?expected_target"]}
+      ],
+      "guards": [
+        {"operator": "not_equal", "args": ["?observed_target", "?expected_target"]}
+      ],
+      "constraints": [
+        {
+          "name": "incompatibleInstallationTarget",
+          "kind": "compatibility",
+          "args": ["?s", "?component", "?observed_target", "?expected_target"]
+        }
+      ]
+    },
+    {
+      "id": "effect_explicitly_observed_condition",
+      "type": "expected_effect",
+      "threshold": 0.70,
+      "antecedents": [
+        {"name": "hasAction", "args": ["?s", "install"]},
+        {"name": "hasObservedEffect", "args": ["?s", "?condition", "?arg1", "?arg2"]}
+      ],
+      "constraints": [
+        {"name": "produces", "kind": "expected_effect", "args": ["?s", "?condition", "?arg1", "?arg2"]}
+      ]
+    },
+    {
+      "id": "precondition_remove_requires_component_installed",
+      "type": "inferred_precondition",
+      "threshold": 0.70,
+      "antecedents": [
+        {"name": "hasAction", "args": ["?s", "remove"]},
+        {"name": "usesObject", "args": ["?s", "?component"]},
+        {"name": "isA", "args": ["?component", "Component"]},
+        {"name": "hasInstallTarget", "args": ["?component", "?target"]}
+      ],
+      "constraints": [
+        {"name": "requires", "kind": "inferred_precondition", "args": ["?s", "installed", "?component", "?target"]}
+      ]
+    },
+    {
+      "id": "effect_remove_component_from_target",
+      "type": "expected_effect",
+      "threshold": 0.70,
+      "antecedents": [
+        {"name": "hasAction", "args": ["?s", "remove"]},
+        {"name": "usesObject", "args": ["?s", "?component"]},
+        {"name": "isA", "args": ["?component", "Component"]},
+        {"name": "hasInstallTarget", "args": ["?component", "?target"]}
+      ],
+      "constraints": [
+        {"name": "produces", "kind": "expected_effect", "args": ["?s", "removed", "?component", "?target"]}
+      ]
+    },
+    {
+      "id": "implicit_domain_required_condition",
+      "type": "implicit_assembly_condition",
+      "threshold": 0.70,
+      "antecedents": [
+        {"name": "hasAction", "args": ["?s", "install"]},
+        {"name": "usesObject", "args": ["?s", "?component"]},
+        {"name": "isA", "args": ["?component", "Component"]},
+        {"name": "hasRequiredCondition", "args": ["?component", "?condition", "?arg1", "?arg2"]}
+      ],
+      "constraints": [
+        {"name": "requires", "kind": "implicit_assembly_condition", "args": ["?s", "?condition", "?arg1", "?arg2"]}
+      ]
+    },
+    {
+      "id": "safety_domain_requirement",
+      "type": "safety_constraint",
+      "threshold": 0.70,
+      "antecedents": [
+        {"name": "hasAction", "args": ["?s", "install"]},
+        {"name": "usesObject", "args": ["?s", "?component"]},
+        {"name": "isA", "args": ["?component", "ChassisPin"]},
+        {"name": "hasSafetyRequirement", "args": ["?component", "?condition", "?arg1", "?arg2"]}
+      ],
+      "constraints": [
+        {"name": "requiresSafety", "kind": "safety_constraint", "args": ["?s", "?condition", "?arg1", "?arg2"]}
+      ]
+    },
+    {
+      "id": "tool_domain_requirement",
+      "type": "required_tool",
+      "threshold": 0.70,
+      "antecedents": [
+        {"name": "usesObject", "args": ["?s", "?component"]},
+        {"name": "isA", "args": ["?component", "Screw"]},
+        {"name": "hasRequiredTool", "args": ["?component", "?tool"]}
+      ],
+      "constraints": [
+        {"name": "requiresTool", "kind": "required_tool", "args": ["?s", "?tool"]}
+      ]
+    },
+    {
+      "id": "compat_error_action_marks_incompatibility",
+      "type": "compatibility",
+      "threshold": 0.70,
+      "antecedents": [
+        {"name": "hasAction", "args": ["?s", "error"]},
+        {"name": "usesObject", "args": ["?s", "?o"]}
+      ],
+      "constraints": [
+        {"name": "incompatibleAction", "kind": "compatibility", "args": ["?s", "?o", "error"]}
+      ]
+    }
+  ]
+}
