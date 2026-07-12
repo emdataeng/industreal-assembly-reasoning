@@ -99,6 +99,52 @@ scripts/25_rebuild_all_reasoning_and_import_neo4j.py
 - `docs/reasoning_layers/current_pipeline_integration.md` explains how Layers
   3 and 4 connect to the upstream graph artifacts.
 
+## Related Thesis
+
+This repository accompanies the thesis:
+
+```bibtex
+@masterthesis{Marquez_2026,
+  series={IT},
+  title={Knowledge-Driven Validation of Procedural Steps for XR-Based Industrial Assembly},
+  url={https://urn.kb.se/resolve?urn=urn:nbn:se:uu:diva-591569},
+  author={Márquez, Eric},
+  year={2026},
+  collection={IT}
+}
+```
+
+## Credits
+
+This thesis pipeline was developed as a two-person project.
+
+Layers 1 and 2, which transform raw IndustReal evidence into graph CSV
+artifacts, were implemented by my thesis partner in the upstream project:
+[XR_Event_Grounding_Graph](https://github.com/cedrickaneza/XR_Event_Grounding_Graph).
+
+This repository focuses on my contribution: Layers 3 and 4, which transform
+those graph artifacts into symbolic step records, inferred procedural
+constraints, validation traces, and procedural reasoning graphs.
+
+## Citation / Data Source
+
+This repository is an independent thesis demo built on public
+IndustReal-derived graph artifacts; it is not affiliated with or maintained by
+the original IndustReal authors.
+
+If you use this demo or the included IndustReal-derived artifacts, please cite
+the original IndustReal dataset paper:
+
+```bibtex
+@inproceedings{schoonbeek2024industreal,
+  title={IndustReal: A Dataset for Procedure Step Recognition Handling Execution Errors in Egocentric Videos in an Industrial-Like Setting},
+  author={Schoonbeek, Tim J and Houben, Tim and Onvlee, Hans and van der Sommen, Fons and others},
+  booktitle={Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision},
+  pages={4365--4374},
+  year={2024}
+}
+```
+
 ## Scope
 
 This public repository intentionally excludes private pilot-study data and
