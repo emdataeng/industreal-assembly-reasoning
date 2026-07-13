@@ -14,3 +14,6 @@ results/procedural_reasoning_graph/
 
 # Local scratch data
 .tmp/
+
+#gpt alternatives docs
+.gpt/
