@@ -36,7 +36,7 @@ XR authoring systems generate instructions but don't validate them; step-recogni
 
 The core commitment: *no black boxes between evidence and decision*. Observations become symbolic predicates with confidence and provenance; configurable rules infer what each step requires and produces; ordered validation classifies each step against evidence and the effects of earlier non-rejected steps; and everything is exported as an inspectable graph.
 
-Full design detail: [docs/architecture.md](docs/architecture.md) · [Integration notes](docs/reasoning_layers/current_pipeline_integration.md)
+Full design detail: [Architecture](docs/architecture.md) · [Integration notes](docs/reasoning_layers/current_pipeline_integration.md) · [Upstream artifact provenance](docs/upstream_layers/industreal_artifact_provenance.md) · [Upstream CSV contract](docs/upstream_layers/upstream_graph_csv_contract.md)
 
 ## Solution: The Reasoning Pipeline
 
