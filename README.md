@@ -97,7 +97,8 @@ ORDER BY graph_name;
 > Neo4j Browser with the query above and its result table/graph
 
 
-> ![Run the pipeline → open Neo4j → query a step's reasoning trace](docs/images/execution_sequence_4.gif)
+![Run the pipeline → open Neo4j → query a step's reasoning trace](docs/images/execution_sequence_4.gif)
+> A sample execution of the pipeline for a single clip.
 
 ## Key Features
 
