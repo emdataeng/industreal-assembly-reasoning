@@ -12,7 +12,14 @@ Developed as the reasoning contribution of a master's thesis at Uppsala Universi
 
 ## The Problem
 
-Industrial assembly assistance is moving toward XR headsets and AI perception, but what those systems capture is typically a **flat list of recognized steps** — descriptive, not procedural. A flat step list cannot answer the questions that matter in safety-sensitive manufacturing:
+Industrial assembly assistance is moving toward XR headsets and AI perception, but what those systems capture is typically a **flat list of recognized steps** — descriptive, not procedural. 
+
+![Workflow today](docs/images/workflow_as_is_done_today.png)
+
+> Knowledge capture today: This captures what the expert did, but not yet why each step is valid, required, or safe. 
+
+
+A flat step list cannot answer the questions that matter in safety-sensitive manufacturing:
 
 - **Why is this step valid here?** What must already hold before it?
 - **What does it depend on?** Which earlier step enables it — and is that step still trustworthy?
@@ -21,42 +28,44 @@ Industrial assembly assistance is moving toward XR headsets and AI perception, b
 
 XR authoring systems generate instructions but don't validate them; step-recognition models detect procedural progress but not procedural *support*; ontology-based assembly models assume clean, deterministic inputs. None connect uncertain observation-derived evidence to **traceable validation decisions**. This project fills that gap.
 
+![Before/after](docs/images/before_after_reasoning.png)
+
+> Before/after: The idea is take a flat input step list and enrich with previous actions, tools, safety conditions, object compatibility, and missing evidence. 
+
 ## System Architecture
 
 The core commitment: *no black boxes between evidence and decision*. Observations become symbolic predicates with confidence and provenance; configurable rules infer what each step requires and produces; ordered validation classifies each step against evidence and the effects of earlier non-rejected steps; and everything is exported as an inspectable graph.
 
+Full design detail: [docs/architecture.md](docs/architecture.md) · [Integration notes](docs/reasoning_layers/current_pipeline_integration.md)
+
+## Solution: The Reasoning Pipeline
+
+Each layer reads explicit file artifacts from the previous one and writes its own — no hidden state, every intermediate inspectable:
+
 ```mermaid
 flowchart TB
-    subgraph upstream["Observation-derived inputs (Layers 1–2, companion thesis)"]
-        XR["XR / video recordings<br/>(IndustReal dataset)"] --> CSV["Graph CSV artifacts<br/>events · components · order"]
-    end
+    L1["<b>Layer 1 — Step-aligned input</b><br/>Ordered step segments with time windows,<br/>sources, and component references"]
+    L2["<b>Layer 2 — Symbolic facts</b><br/>Events and metadata exported as<br/>graph CSVs (the boundary fixture in this repo)"]
+    L3["<b>Layer 3 — Rule-based inference</b><br/>step_records.jsonl + predicates.jsonl<br/>→ inferred_constraints.csv + coverage diagnostics"]
+    L4["<b>Layer 4 — Validation & graph construction</b><br/>→ validation_records.jsonl + explanation traces<br/>→ procedural_reasoning_graph.json/csv"]
 
-    subgraph reasoning["Reasoning layer — this repository (Layers 3–4)"]
-        CSV --> ADP["Adapter<br/>step records + symbolic predicates"]
-        ADP --> INF["Rule-based inference<br/>requirements · effects · incompatibilities"]
-        INF --> VAL["Step validation<br/>accepted / uncertain / rejected<br/>+ explanation traces"]
-    end
+    L1 --> L2 --> L3 --> L4
 
-    VAL --> KG[("Procedural reasoning graph<br/>Neo4j · JSON · CSV")]
-
-    KG -.-> LLM["LLM assistant<br/>verbalizes graph evidence"]
-    LLM -.-> OP["Operator<br/>context-aware XR guidance"]
-
-    style upstream fill:#eceff1,stroke:#78909c,color:#263238
-    style reasoning fill:#e3f2fd,stroke:#1565c0,color:#0d47a1
-    style KG fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20
-    style LLM stroke-dasharray: 5 5
-    style OP stroke-dasharray: 5 5
+    style L1 fill:#eceff1,stroke:#78909c,color:#263238
+    style L2 fill:#eceff1,stroke:#78909c,color:#263238
+    style L3 fill:#e3f2fd,stroke:#1565c0,color:#0d47a1
+    style L4 fill:#e3f2fd,stroke:#1565c0,color:#0d47a1
 ```
 
-Dashed nodes are the target integration explored in the thesis: because every validation outcome is explicit graph structure, an LLM assistant can *explain* decisions by reading the graph instead of hallucinating structure from video or logs. That integration is future work; everything upstream of it is implemented and evaluated.
+- **Layers 1–2** *(upstream)*: segment recordings into ordered candidate steps and export them as structured graph CSVs.
+- **Layer 3** *(this repo)*: an adapter normalizes the CSVs into confidence-weighted predicates; a generic rule engine (11 rules in config, not code) infers preconditions, expected effects, tool/safety requirements, and hard incompatibilities.
+- **Layer 4** *(this repo)*: walks the ordered steps maintaining a produced-effect history, checks every requirement against active evidence, assigns statuses with explanation traces, and builds the procedural reasoning graph.
 
 
-![Before/after](docs/images/before_after_reasoning.png)
+![procedural_graph_focus_on_Step_0](docs/images/od_plus_psr_error_hints__test_p1__03_assy_1_3_just_Steps.png)
 
-> Before/after: flat input step list vs. the same clip enriched as a validated reasoned representation 
+> Procedural graph constructed from validated step records of one Industreal clip. The *NEXT* edges preserve the input sequence, while *DEPENDS_ON* edges make explicit how requirements are satisfied by effects produced by earlier steps. Node status and attached evidence indicate whether each step is accepted (blue), uncertain (yellow), or rejected (red)
 
-Full design detail: [docs/architecture.md](docs/architecture.md) · [Integration notes](docs/reasoning_layers/current_pipeline_integration.md)
 
 ## Quick Start
 
@@ -87,38 +96,9 @@ RETURN DISTINCT n.graph_name AS graph_name
 ORDER BY graph_name;
 ```-->
 
-![List of graph names](docs/images/names_%20of_the_graphs_imported_into_neo4j_2.png)
+![List of graph names](docs/images/names_of_the_graphs_imported_into_neo4j_2.png)
 > Neo4j Browser with the query above and its result table/graph
 
-## Solution: The Reasoning Pipeline
-
-Each layer reads explicit file artifacts from the previous one and writes its own — no hidden state, every intermediate inspectable:
-
-```mermaid
-flowchart TB
-    L1["<b>Layer 1 — Step-aligned input</b><br/>Ordered step segments with time windows,<br/>sources, and component references"]
-    L2["<b>Layer 2 — Symbolic facts</b><br/>Events and metadata exported as<br/>graph CSVs (the boundary fixture in this repo)"]
-    L3["<b>Layer 3 — Rule-based inference</b><br/>step_records.jsonl + predicates.jsonl<br/>→ inferred_constraints.csv + coverage diagnostics"]
-    L4["<b>Layer 4 — Validation & graph construction</b><br/>→ validation_records.jsonl + explanation traces<br/>→ procedural_reasoning_graph.json/csv"]
-
-    L1 --> L2 --> L3 --> L4
-
-    style L1 fill:#eceff1,stroke:#78909c,color:#263238
-    style L2 fill:#eceff1,stroke:#78909c,color:#263238
-    style L3 fill:#e3f2fd,stroke:#1565c0,color:#0d47a1
-    style L4 fill:#e3f2fd,stroke:#1565c0,color:#0d47a1
-```
-
-- **Layers 1–2** *(upstream)*: segment recordings into ordered candidate steps and export them as structured graph CSVs.
-- **Layer 3** *(this repo)*: an adapter normalizes the CSVs into confidence-weighted predicates; a generic rule engine (11 rules in config, not code) infers preconditions, expected effects, tool/safety requirements, and hard incompatibilities.
-- **Layer 4** *(this repo)*: walks the ordered steps maintaining a produced-effect history, checks every requirement against active evidence, assigns statuses with explanation traces, and builds the procedural reasoning graph.
-
-![Implemented pipeline](docs/images/Implemented_layout_white_bkgrnd.png)
-
-
-![procedural_graph_focus_on_Step_0](docs/images/od_plus_psr_error_hints__test_p1__03_assy_1_3_just_Steps.png)
-
-> Procedural graph constructed from validated step records of one Industreal clip. The *NEXT* edges preserve the input sequence, while *DEPENDS_ON* edges make explicit how requirements are satisfied by effects produced by earlier steps. Node status and attached evidence indicate whether each step is accepted (blue), uncertain (yellow), or rejected (red)
 
 ## Key Features
 
@@ -127,6 +107,13 @@ flowchart TB
 - **End-to-end provenance** — status → constraint → rule → predicates → upstream CSV field, with SHA-256 config/input hashes embedded in every exported graph.
 - **Dependency inference** — `DEPENDS_ON` edges exist only when a requirement is grounded in an earlier step's produced effect; temporal `NEXT` order is never confused with procedural dependency.
 - **Deterministic and config-driven** — same inputs + same config = same outputs; rules and domain knowledge (versioned, with ADRs and a changelog) change without touching engine code.
+
+
+![Effect lifecycle validation](docs/images/eval04_D_effect_lifecycle_invalidation.png)
+> A sample of produced-effect constraints linked by *INVALIDATED\_BY* relations to later removal effects.
+
+![Representative trace](docs/images/eval04_E_full_representative_trace_step17.png)
+> Compact explanation neighborhood for a representative Step, showing evidence and provenance links.
 
 ## Repository Structure
 

@@ -10,9 +10,38 @@ Three commitments shape everything else:
 2. **Evidence and inference are never mixed.** Predicates represent what was stated, observed, or configured. Constraints represent what rules *inferred* from predicates. Validation records represent decisions over both. Each record type carries provenance back to the layer below.
 3. **Knowledge lives in configuration, mechanism lives in code.** The rule engine and validator are generic; everything IndustReal-specific (component names, install targets, tools, safety conditions) is declarative config that the adapter materializes into predicates.
 
+
+```mermaid
+flowchart TB
+    subgraph upstream["Observation-derived inputs (Layers 1–2, companion thesis)"]
+        XR["XR / video recordings<br/>(IndustReal dataset)"] --> CSV["Graph CSV artifacts<br/>events · components · order"]
+    end
+
+    subgraph reasoning["Reasoning layer — this repository (Layers 3–4)"]
+        CSV --> ADP["Adapter<br/>step records + symbolic predicates"]
+        ADP --> INF["Rule-based inference<br/>requirements · effects · incompatibilities"]
+        INF --> VAL["Step validation<br/>accepted / uncertain / rejected<br/>+ explanation traces"]
+    end
+
+    VAL --> KG[("Procedural reasoning graph<br/>Neo4j · JSON · CSV")]
+
+    KG -.-> LLM["LLM assistant<br/>verbalizes graph evidence"]
+    LLM -.-> OP["Operator<br/>context-aware XR guidance"]
+
+    style upstream fill:#eceff1,stroke:#78909c,color:#263238
+    style reasoning fill:#e3f2fd,stroke:#1565c0,color:#0d47a1
+    style KG fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20
+    style LLM stroke-dasharray: 5 5
+    style OP stroke-dasharray: 5 5
+```
+
+Dashed nodes are the target integration explored in the thesis: because every validation outcome is explicit graph structure, an LLM assistant can *explain* decisions by reading the graph instead of hallucinating structure from video or logs. That integration is future work; everything upstream of it is implemented and evaluated.
+
+
+
 ## Stage-by-stage data flow
 
-![Implemented pipeline and artifacts](reasoning_layers/Implemented_layout_white_bkgrnd.png)
+![Implemented pipeline and artifacts](./images/Implemented_layout_white_bkgrnd_2.png)
 
 *Each stage reads the previous stage's files and writes its own: the adapter (`layer3_reasoning_adapter.py`) turns the upstream CSVs into `step_records.jsonl` + `predicates.jsonl`; Layer 3 (`layer3_inference.py`) writes `inferred_constraints.csv` + `rule_coverage_diagnostics.csv`; Layer 4 (`layer4_validation.py`) writes `validation_records.jsonl`, `step_validations.csv`, `explanation_traces.json`, and `effect_history_diagnostics.csv`; the graph builder (`procedural_reasoning_graph.py`) exports `procedural_reasoning_graph.json` + node/edge CSVs, which `procedural_neo4j_import.py` loads into Neo4j.*
 
