@@ -71,9 +71,6 @@ flowchart TB
 
 Runs in minutes on the included public fixture (38 clip results, 659 assembly events from IndustReal). Requires Python 3; the only heavyweight dependency is the optional Neo4j driver.
 
-<!-- TODO animated GIF: ~10s screen capture — run script 25, watch artifacts appear, open Neo4j Browser, run one Cypher query on a Step node. Suggested file: docs/images/demo.gif -->
-> 🎬 *Placeholder — 10-second GIF: run the pipeline → open Neo4j → query a step's reasoning trace (`docs/images/demo.gif`)*
-
 ```bash
 pip install -r requirements.txt
 ```
@@ -99,6 +96,8 @@ ORDER BY graph_name;
 ![List of graph names](docs/images/names_of_the_graphs_imported_into_neo4j_2.png)
 > Neo4j Browser with the query above and its result table/graph
 
+
+> ![Run the pipeline → open Neo4j → query a step's reasoning trace](docs/images/execution_sequence_4.gif)
 
 ## Key Features
 
