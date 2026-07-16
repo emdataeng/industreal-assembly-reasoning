@@ -196,7 +196,7 @@ Five functional evaluations, each falsifiable — methodology, numbers, and limi
 ## Lessons Learned
 
 - **File-based stage boundaries were the highest-leverage decision** — they made debugging local, made the evaluations possible, and let two theses integrate through contracts alone.
-- **Evaluation found a real semantic gap, and the process handled it** — `remove` actions initially had evidence but no semantics; the gap surfaced as a `no_applicable_rule` diagnostic, became the effect-lifecycle feature, and is documented in `Evaluation1_remove_semantics/` and the ADRs.
+- **Evaluation found a real semantic gap, and the process handled it** — `remove` actions initially had evidence but no semantics; the gap surfaced as a `no_applicable_rule` diagnostic, became the effect-lifecycle feature, and is documented in `Evaluation1_remove_semantics/` and [ADR-005](docs/reasoning_layers/decisions/ADR-005-remove-semantics-and-effect-lifecycle.md).
 - **Uncertainty as a first-class status beats forced binary decisions** — it is what makes conservative degradation possible.
 - **Trade-off accepted:** scalar min-confidence can't model evidence dependencies, but it's explainable in one sentence — right call for a traceability-first system.
 - **Known bottleneck:** the domain model is hand-authored; generating it from CAD metadata is the obvious next step.

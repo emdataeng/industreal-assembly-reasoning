@@ -263,3 +263,44 @@ For example:
 
 - Added coverage in `tests/test_layer3_ontology_config.py`.
 - Full test suite result at implementation time: `128 passed`.
+
+## Pre-changelog — Remove semantics and the produced-effect lifecycle
+
+Recorded retrospectively on 2026-07-16. This change predates the adoption of
+this changelog and semantic versioning; it was implemented on or before
+2026-05-18 (the Evaluation 1 run that exercised it end-to-end) and is part of
+every versioned rule set since.
+
+Decision record:
+
+- [`ADR-005: Remove Semantics and the Produced-Effect Lifecycle`](decisions/ADR-005-remove-semantics-and-effect-lifecycle.md)
+
+### Added
+
+- Two generic Layer 3 rules covering `remove` actions:
+  - `precondition_remove_requires_component_installed`, producing
+    `requires(step, installed, component, target)`.
+  - `effect_remove_component_from_target`, producing
+    `produces(step, removed, component, target)`.
+- The Layer 4 produced-effect lifecycle (`effect_lifecycle_status`):
+  `active`, `invalidated`, and `inactive_rejected`. Only active effects can
+  support later requirements; invalidated and rejected-step effects are
+  retained for traceability.
+- `invalidated_effects` on validation records and traces, and the
+  `effect_history_diagnostics.csv` export.
+
+### Rationale
+
+Remove events in the IndustReal data produced predicates that no rule
+consumed, surfacing as `no_applicable_rule` coverage diagnostics. The
+observations were correct; the knowledge model was incomplete. Without remove
+semantics, an `installed(...)` effect also continued to support later steps
+after the component had been removed.
+
+### Impact
+
+- Remove steps receive requirements, effects, and rule provenance like any
+  other step.
+- Later steps can no longer be supported by installation effects that a
+  removal has invalidated.
+- Evidence: `Evaluation1_remove_semantics/` reports.
